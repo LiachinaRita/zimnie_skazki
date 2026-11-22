@@ -1,0 +1,858 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Угадай киносказку — Волшебная киностудия</title>
+
+<style>
+:root {
+  --wine: #762d35;
+  --wine-dark: #4d2028;
+  --gold: #bd9550;
+  --paper: #f8f0df;
+  --ink: #332b27;
+  --green: #30483d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+
+  background-image:
+    linear-gradient(
+      rgba(13, 17, 16, .30),
+      rgba(13, 17, 16, .48)
+    ),
+    url("https://i.postimg.cc/B6KLyF6q/1795246270109-qtu6o487.png");
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #18201d;
+}
+
+.app {
+  width: min(960px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 28px 0 45px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.top {
+  text-align: center;
+  color: #fff8e9;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 8px #000;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 12px;
+  color: #e8d4a8;
+}
+
+h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  margin: 9px 0 5px;
+  font-weight: normal;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #f3e5ca;
+}
+
+.screen {
+  position: relative;
+  background: rgba(250, 243, 226, .96);
+  border: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: clamp(20px, 4vw, 42px);
+  box-shadow:
+    0 15px 45px rgba(0,0,0,.45),
+    inset 0 0 0 5px rgba(189,149,80,.13);
+  overflow: hidden;
+}
+
+.screen::before,
+.screen::after {
+  content: "✦";
+  position: absolute;
+  color: var(--gold);
+  font-size: 23px;
+  top: 12px;
+}
+
+.screen::before { left: 16px; }
+.screen::after { right: 16px; }
+
+.hidden { display: none !important; }
+.center { text-align: center; }
+
+.kicker {
+  color: var(--wine);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: clamp(23px, 4vw, 32px);
+  font-weight: normal;
+  margin: 12px 0 18px;
+  color: var(--wine-dark);
+}
+
+p {
+  line-height: 1.6;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--wine);
+  color: #fff8ec;
+  border: 1px solid #4d2028;
+  border-radius: 5px;
+  padding: 13px 25px;
+  font-size: 17px;
+  transition: .2s;
+}
+
+.primary:hover {
+  background: var(--wine-dark);
+  transform: translateY(-2px);
+}
+
+.secondary {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--wine-dark);
+  border-radius: 5px;
+  padding: 11px 18px;
+}
+
+.progress-wrap {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--wine-dark);
+}
+
+.progress {
+  height: 8px;
+  background: #e4d8c2;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--wine);
+  transition: width .3s;
+}
+
+.score {
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.film-image {
+  width: min(100%, 520px);
+  max-height: 310px;
+  object-fit: contain;
+  display: block;
+  margin: 18px auto;
+  border: 5px solid #e2d2b6;
+  border-radius: 5px;
+  background: #e8dfce;
+  box-shadow: 0 5px 15px #0002;
+}
+
+.question {
+  font-size: 19px;
+  line-height: 1.5;
+  text-align: center;
+  margin: 18px auto;
+  max-width: 720px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 11px;
+  margin: 20px 0;
+}
+
+.option {
+  border: 1px solid #c9b58f;
+  background: rgba(255,255,255,.58);
+  border-radius: 6px;
+  padding: 14px;
+  text-align: left;
+  color: var(--ink);
+  font-size: 16px;
+  transition: .2s;
+}
+
+.option:hover {
+  background: #fffaf0;
+  border-color: var(--wine);
+}
+
+.option.selected {
+  background: #ead9c0;
+  border: 2px solid var(--wine);
+}
+
+.option.correct {
+  background: #dce9d9;
+  border-color: #547b50;
+}
+
+.option.wrong {
+  background: #f2dada;
+  border-color: #a54a4a;
+}
+
+.task-box {
+  background: rgba(255,255,255,.48);
+  border-left: 4px solid var(--gold);
+  padding: 18px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+.sentence {
+  font-size: 20px;
+  line-height: 1.6;
+  text-align: center;
+  margin: 16px 0;
+  color: #382a27;
+}
+
+.answer-input, .match-select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #bba77f;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 16px;
+  background: #fffdf8;
+  color: var(--ink);
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.feedback {
+  margin: 18px 0;
+  padding: 15px;
+  border-radius: 5px;
+  line-height: 1.5;
+}
+
+.feedback.good {
+  background: #e1ebdc;
+  border: 1px solid #8ba47d;
+}
+
+.feedback.bad {
+  background: #f2e1dc;
+  border: 1px solid #c58c7e;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.round-label {
+  text-align: center;
+  color: var(--wine);
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.footer {
+  text-align: center;
+  color: #f6e8cd;
+  font-size: 13px;
+  margin-top: 17px;
+  text-shadow: 0 2px 5px #000;
+}
+
+@media(max-width: 600px) {
+  .options { grid-template-columns: 1fr; }
+  .match-row { grid-template-columns: 1fr; }
+  .screen { padding: 24px 17px; }
+  .progress-wrap { flex-wrap: wrap; }
+  .progress { order: 3; flex-basis: 100%; }
+  body { background-attachment: scroll; }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+
+<header class="top">
+  <div class="eyebrow">Волшебная киностудия представляет</div>
+  <h1>Угадай киносказку</h1>
+  <div class="subtitle">Тайна семи киноплёнок</div>
+</header>
+
+<section class="screen">
+
+  <div id="start">
+    <div class="center">
+      <div class="kicker">Киносеанс начинается</div>
+      <h2>Добро пожаловать в мир киносказок!</h2>
+      <p>
+        Впереди шесть киноплёнок. На каждой вас ждут
+        загадка по советскому фильму и задание по русскому языку.
+      </p>
+      <p>
+        Обсуждайте ответы всей командой, вспоминайте сказки
+        и внимательно анализируйте предложения.
+      </p>
+      <p><b>Максимум — 18 баллов.</b></p>
+      <button class="primary" onclick="startGame()">
+        Начать киносеанс
+      </button>
+    </div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="progress-wrap">
+      <span id="roundText">Киноплёнка 1 из 6</span>
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <span class="score" id="scoreText">Баллы: 0 / 18</span>
+    </div>
+
+    <div id="stage"></div>
+    <div id="feedback"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <div id="finish" class="hidden center">
+    <div class="kicker">Киносеанс завершён</div>
+    <h2>Браво! Вы раскрыли тайну киноплёнок!</h2>
+    <p id="finalScore" style="font-size:25px"></p>
+    <p id="finalText"></p>
+    <button class="primary" onclick="restartGame()">
+      Пройти игру ещё раз
+    </button>
+  </div>
+
+</section>
+
+<footer class="footer">
+  Волшебная киностудия • Классный киносеанс
+</footer>
+</main>
+
+<script>
+const films = [
+{
+  title: "Морозко",
+  year: "1964",
+  image: "https://i.postimg.cc/zfffmgdX/morozko.jpg",
+  options: [
+    "Морозко",
+    "Снегурочка",
+    "Снежная королева",
+    "Двенадцать месяцев"
+  ],
+  clue: "Добрая девушка отправляется в зимний лес, где встречает волшебного хозяина зимы.",
+  explanation: "Это сказка о Настеньке, её испытаниях и встрече с Морозко.",
+  task: {
+    type: "input",
+    title: "Найдите грамматическую основу",
+    sentence: "Настенька, укрывшись тёплым платком, осторожно шла по заснеженной тропинке.",
+    instruction: "Запишите грамматическую основу предложения.",
+    answers: ["настенька шла", "шла настенька"],
+    correct: "Настенька шла.",
+    explanation: "Настенька — подлежащее, шла — простое глагольное сказуемое."
+  }
+},
+{
+  title: "Двенадцать месяцев",
+  year: "1972",
+  image: "https://i.postimg.cc/HkYY5M1h/12-mesacev.jpg",
+  options: [
+    "Снегурочка",
+    "Морозко",
+    "Двенадцать месяцев",
+    "Орех Кракатук"
+  ],
+  clue: "Зимой девочка отправляется в лес за цветами и встречает необычных братьев.",
+  explanation: "Двенадцать месяцев помогают девочке и становятся участниками удивительного чуда.",
+  task: {
+    type: "choice",
+    title: "Выберите грамматическую основу",
+    sentence: "Двенадцать месяцев собрались у праздничного костра.",
+    instruction: "Укажите грамматическую основу предложения.",
+    options: [
+      "у костра собрались",
+      "месяцев у костра",
+      "двенадцать месяцев собрались",
+      "собрались праздничного"
+    ],
+    correct: 2,
+    answer: "Двенадцать месяцев собрались.",
+    explanation: "Двенадцать месяцев — составное подлежащее, собрались — сказуемое."
+  }
+},
+{
+  title: "Новогодние приключения Маши и Вити",
+  year: "1975",
+  image: "https://i.postimg.cc/vTvRHPTH/images-%281%29.jpg",
+  options: [
+    "Орех Кракатук",
+    "Новогодние приключения Маши и Вити",
+    "Снежная королева",
+    "Морозко"
+  ],
+  clue: "Два школьника отправляются в сказочное путешествие, чтобы помочь Деду Морозу.",
+  explanation: "Маша и Витя проходят испытания и встречают сказочных героев.",
+  task: {
+    type: "choice",
+    title: "Найдите составное глагольное сказуемое",
+    sentence: "В каком предложении есть составное глагольное сказуемое?",
+    options: [
+      "Маша и Витя отправились в сказку.",
+      "Маша и Витя решили помочь Деду Морозу.",
+      "Дед Мороз был добрым волшебником.",
+      "В лесу наступила зима."
+    ],
+    correct: 1,
+    answer: "решили помочь",
+    explanation: "Решили помочь — составное глагольное сказуемое: вспомогательный глагол и инфинитив."
+  }
+},
+{
+  title: "Снегурочка",
+  year: "1968",
+  image: "https://i.postimg.cc/9QRxL82W/Snegurocka.jpg",
+  options: [
+    "Снегурочка",
+    "Морозко",
+    "Снежная королева",
+    "Двенадцать месяцев"
+  ],
+  clue: "Сказочная девушка, рождённая из снега, оказывается среди людей и узнаёт мир человеческих чувств.",
+  explanation: "Это история о Снегурочке, дочери Мороза и Весны.",
+  task: {
+    type: "choice",
+    title: "Определите предложение с подлежащим, выраженным личным местоимением",
+    sentence: "Выберите нужное предложение.",
+    options: [
+      "Снегурочка вышла на поляну.",
+      "Она прислушалась к тихому пению птиц.",
+      "Весна пришла в лес.",
+      "Девушка посмотрела на солнце."
+    ],
+    correct: 1,
+    answer: "Она прислушалась к тихому пению птиц.",
+    explanation: "Подлежащее «она» выражено личным местоимением."
+  }
+},
+{
+  title: "Снежная королева",
+  year: "1966",
+  image: "https://i.postimg.cc/J4tKh6Gq/sneznaa.jpg",
+  options: [
+    "Снегурочка",
+    "Морозко",
+    "Снежная королева",
+    "Орех Кракатук"
+  ],
+  clue: "Девочка отправляется в далёкое путешествие, чтобы найти друга, оказавшегося во власти ледяной волшебницы.",
+  explanation: "Герда преодолевает множество испытаний ради спасения Кая.",
+  task: {
+    type: "input",
+    title: "Найдите все грамматические основы",
+    sentence: "Когда Герда добралась до ледяного дворца, Кай поднял голову, а Снежная королева посмотрела на девочку.",
+    instruction: "Запишите три грамматические основы через точку с запятой.",
+    answers: [
+      "герда добралась; кай поднял; королева посмотрела",
+      "кай поднял; герда добралась; королева посмотрела"
+    ],
+    correct: "Герда добралась; Кай поднял; Снежная королева посмотрела.",
+    explanation: "В предложении три основы: Герда добралась; Кай поднял; королева посмотрела."
+  }
+},
+{
+  title: "Орех Кракатук",
+  year: "1977",
+  image: "https://i.postimg.cc/90s90BnJ/krakatuk.jpg",
+  options: [
+    "Двенадцать месяцев",
+    "Орех Кракатук",
+    "Морозко",
+    "Снежная королева"
+  ],
+  clue: "Волшебная история связана с необычным орехом, чудесами и ожившими персонажами.",
+  explanation: "Это сказочная история о волшебном орехе Кракатук.",
+  task: {
+    type: "matching",
+    title: "Соотнесите предложения и характеристики грамматических основ",
+    rows: [
+      "Щелкунчик ожил в полночь.",
+      "В комнате стало тихо.",
+      "Разгадать тайну ореха — непростая задача."
+    ],
+    variants: [
+      "А. Подлежащее — существительное, сказуемое — глагол",
+      "Б. Односоставное безличное предложение",
+      "В. Подлежащее выражено инфинитивом"
+    ],
+    correct: ["А", "Б", "В"],
+    answer: "1 — А; 2 — Б; 3 — В.",
+    explanation: "В первом предложении подлежащее — Щелкунчик, сказуемое — ожил. Второе — безличное. В третьем подлежащее выражено инфинитивом."
+  }
+}
+];
+
+let round = 0;
+let score = 0;
+let stage = "film";
+let selectedFilm = null;
+let checked = false;
+
+const $ = id => document.getElementById(id);
+
+function startGame() {
+  $("start").classList.add("hidden");
+  $("finish").classList.add("hidden");
+  $("game").classList.remove("hidden");
+
+  round = 0;
+  score = 0;
+  stage = "film";
+  selectedFilm = null;
+
+  render();
+}
+
+function updateProgress() {
+  $("roundText").textContent = `Киноплёнка ${round + 1} из 6`;
+  $("progressBar").style.width = `${round / 6 * 100}%`;
+  $("scoreText").textContent = `Баллы: ${score} / 18`;
+}
+
+function render() {
+  checked = false;
+  $("feedback").innerHTML = "";
+  $("actions").innerHTML = "";
+
+  updateProgress();
+
+  if (stage === "film") {
+    renderFilm();
+  } else {
+    renderTask();
+  }
+}
+
+function renderFilm() {
+  const f = films[round];
+
+  $("stage").innerHTML = `
+    <div class="round-label">Кадр ${round + 1} • Угадай фильм</div>
+    <h2 class="center">Что за киносказка перед вами?</h2>
+
+    <img
+      class="film-image"
+      src="${f.image}"
+      alt="Иллюстрация к фильму ${f.title}"
+      onerror="this.alt='Изображение временно недоступно'; this.style.minHeight='100px';"
+    >
+
+    <div class="question">${f.clue}</div>
+
+    <div class="options">
+      ${f.options.map((o, i) => `
+        <button class="option" onclick="selectFilm(${i})">${o}</button>
+      `).join("")}
+    </div>
+  `;
+
+  $("actions").innerHTML = `
+    <button class="primary" onclick="checkFilm()">Ответить</button>
+  `;
+}
+
+function selectFilm(i) {
+  if (checked) return;
+
+  selectedFilm = i;
+
+  document.querySelectorAll("#stage .option").forEach((b, n) => {
+    b.classList.toggle("selected", n === i);
+  });
+}
+
+function checkFilm() {
+  if (selectedFilm === null) {
+    alert("Сначала выберите название фильма.");
+    return;
+  }
+
+  if (checked) return;
+  checked = true;
+
+  const f = films[round];
+  const correct = f.options[selectedFilm] === f.title;
+
+  if (correct) score++;
+
+  document.querySelectorAll("#stage .option").forEach(b => {
+    if (b.textContent === f.title) {
+      b.classList.add("correct");
+    } else if (b.classList.contains("selected")) {
+      b.classList.add("wrong");
+    }
+  });
+
+  $("feedback").innerHTML = `
+    <div class="feedback ${correct ? "good" : "bad"}">
+      <b>${correct ? "Верно! +1 балл" : "Пока не угадали."}</b><br>
+      Правильный ответ: <b>${f.title} (${f.year})</b>.<br>
+      ${f.explanation}
+    </div>
+  `;
+
+  $("actions").innerHTML = `
+    <button class="primary" onclick="goToTask()">Перейти к заданию</button>
+  `;
+
+  $("scoreText").textContent = `Баллы: ${score} / 18`;
+}
+
+function goToTask() {
+  stage = "task";
+  render();
+}
+
+function renderTask() {
+  const t = films[round].task;
+
+  let html = `
+    <div class="round-label">Кадр ${round + 1} • Русский язык</div>
+    <h2 class="center">${t.title}</h2>
+  `;
+
+  if (t.sentence) {
+    html += `
+      <div class="task-box">
+        <div class="sentence">${t.sentence}</div>
+        ${t.instruction ? `<p>${t.instruction}</p>` : ""}
+      </div>
+    `;
+  }
+
+  if (t.type === "input") {
+    html += `
+      <input
+        id="answer"
+        class="answer-input"
+        placeholder="Введите ответ здесь..."
+        autocomplete="off"
+      >
+    `;
+  }
+
+  if (t.type === "choice") {
+    html += `
+      <div class="options">
+        ${t.options.map((o, i) => `
+          <button class="option" onclick="selectTask(${i})">${o}</button>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  if (t.type === "matching") {
+    html += `
+      <div class="task-box">
+        ${t.rows.map((r, i) => `
+          <div class="match-row">
+            <div>${i + 1}. ${r}</div>
+            <select class="match-select" id="match${i}">
+              <option value="">Выберите характеристику</option>
+              ${t.variants.map((v, j) => `
+                <option value="${["А", "Б", "В"][j]}">${v}</option>
+              `).join("")}
+            </select>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  $("stage").innerHTML = html;
+
+  $("actions").innerHTML = `
+    <button class="primary" onclick="checkTask()">Проверить ответ</button>
+  `;
+
+  window.taskSelected = null;
+}
+
+function selectTask(i) {
+  if (checked) return;
+
+  window.taskSelected = i;
+
+  document.querySelectorAll("#stage .option").forEach((b, n) => {
+    b.classList.toggle("selected", n === i);
+  });
+}
+
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[.,!?;:—–-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function checkTask() {
+  if (checked) return;
+
+  const t = films[round].task;
+  let correct = false;
+
+  if (t.type === "input") {
+    const value = normalize($("answer").value);
+
+    if (!value) {
+      alert("Введите ответ.");
+      return;
+    }
+
+    correct = t.answers.some(a => normalize(a) === value);
+  }
+
+  if (t.type === "choice") {
+    if (window.taskSelected === null) {
+      alert("Выберите один вариант.");
+      return;
+    }
+
+    correct = window.taskSelected === t.correct;
+  }
+
+  if (t.type === "matching") {
+    const values = [0, 1, 2].map(i => $(`match${i}`).value);
+
+    if (values.some(v => !v)) {
+      alert("Заполните все три соответствия.");
+      return;
+    }
+
+    correct = values.every((v, i) => v === t.correct[i]);
+  }
+
+  checked = true;
+
+  if (correct) score += 2;
+
+  const answerText =
+    t.correct !== undefined && Array.isArray(t.correct)
+      ? t.answer
+      : (t.correctAnswer || t.answer || t.correct);
+
+  $("feedback").innerHTML = `
+    <div class="feedback ${correct ? "good" : "bad"}">
+      <b>${correct ? "Отлично! +2 балла" : "Задание завершено."}</b><br>
+      <b>Правильный ответ:</b> ${answerText}<br>
+      ${t.explanation}
+    </div>
+  `;
+
+  $("scoreText").textContent = `Баллы: ${score} / 18`;
+
+  $("actions").innerHTML = `
+    <button class="primary" onclick="nextRound()">
+      ${round === 5 ? "Завершить игру" : "Следующая киноплёнка"}
+    </button>
+  `;
+}
+
+function nextRound() {
+  if (round === 5) {
+    finishGame();
+    return;
+  }
+
+  round++;
+  stage = "film";
+  selectedFilm = null;
+
+  render();
+}
+
+function finishGame() {
+  $("game").classList.add("hidden");
+  $("finish").classList.remove("hidden");
+
+  $("finalScore").textContent = `Ваш результат: ${score} из 18 баллов`;
+
+  let message = "";
+
+  if (score >= 16) {
+    message = "Превосходно! Вы настоящие знатоки киносказок и русского языка!";
+  } else if (score >= 12) {
+    message = "Отличная работа! Вы хорошо справились с заданиями.";
+  } else if (score >= 8) {
+    message = "Хороший результат! Некоторые кинозагадки оказались непростыми.";
+  } else {
+    message = "Киносеанс завершён! Теперь можно пересмотреть сказки и попробовать ещё раз.";
+  }
+
+  $("finalText").textContent = message;
+}
+
+function restartGame() {
+  selectedFilm = null;
+  startGame();
+}
+</script>
+
+</body>
+</html>
